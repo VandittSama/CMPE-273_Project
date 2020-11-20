@@ -3,7 +3,7 @@ import time
 import sys
 from itertools import cycle
 from consistent_hashing import ConsistentHashing
-import hrw
+from hrw import HrwHashing
 
 
 def create_clients(servers):
@@ -18,39 +18,50 @@ def create_clients(servers):
 
 
 def generate_data_round_robin(servers):
-    print("Starting...")
+    print("\n***Starting...Round Robin***\n")
     producers = create_clients(servers)
     pool = cycle(producers.values())
+    print("\n")
     for num in range(10):
         data = {"key": f"key-{num}", "value": f"value-{num}"}
         print(f"Sending data:{data}")
         next(pool).send_json(data)
         time.sleep(1)
-    print("Done")
+    print("\nDone\n")
 
 
 def generate_data_consistent_hashing(servers):
+    print("\n***Starting...Consistent Hashing***\n")
     ## TODO
     producers = create_clients(servers)
     ch = ConsistentHashing()
     print("\nSetting up the HashRing...")
     ch.add_servers(servers)
-    print("\nStarting...")
+    print("\n")
     for num in range(10):
         data = {"key": f"key-{num}", "value": f"value-{num}"}
         print(f"Sending data:{data}")
         server = ch.get_server(str(num))
         producers[server].send_json(data)
         time.sleep(1)
-    print("Done")
+    print("\nDone\n")
 
 
 def generate_data_hrw_hashing(servers):
-    print("Starting...")
+    print("\n***Starting...HRW hashing***\n")
     ## TODO
     producers = create_clients(servers)
-    hrw.hrw_hashing(producers, servers)
-    print("Done")
+    hrw = HrwHashing()
+    print("\nSetting up server pool...")
+    hrw.add_servers(servers)
+    print("\n")
+    for num in range(10):
+        data = {"key": f"key-{num}", "value": f"value-{num}"}
+        print(f"Sending data:{data}")
+        server = hrw.get_server(num)
+        producers[server].send_json(data)
+        time.sleep(1)
+    print("\nDone\n")
 
 
 if __name__ == "__main__":
@@ -65,6 +76,6 @@ if __name__ == "__main__":
         servers.append(f"tcp://127.0.0.1:{server_port}")
 
     print("Servers:", servers)
-    # generate_data_round_robin(servers)
+    generate_data_round_robin(servers)
     generate_data_consistent_hashing(servers)
-    # generate_data_hrw_hashing(servers)
+    generate_data_hrw_hashing(servers)
