@@ -34,14 +34,13 @@ def generate_data_consistent_hashing(servers):
     print("\n***Starting...Consistent Hashing***\n")
     ## TODO
     producers = create_clients(servers)
-    ch = ConsistentHashing()
     print("\nSetting up the HashRing...")
     ch.add_servers(servers)
     print("\n")
     for num in range(10):
         data = {"key": f"key-{num}", "value": f"value-{num}"}
         print(f"Sending data:{data}")
-        server = ch.get_server(str(num))
+        server = ch.get_server(str(num))  # Getting server based on consistent hashing
         producers[server].send_json(data)
         time.sleep(1)
     print("\nDone\n")
@@ -51,14 +50,13 @@ def generate_data_hrw_hashing(servers):
     print("\n***Starting...HRW hashing***\n")
     ## TODO
     producers = create_clients(servers)
-    hrw = HrwHashing()
     print("\nSetting up server pool...")
     hrw.add_servers(servers)
     print("\n")
     for num in range(10):
         data = {"key": f"key-{num}", "value": f"value-{num}"}
         print(f"Sending data:{data}")
-        server = hrw.get_server(num)
+        server = hrw.get_server(num)  # Getting appropriate server based on HRW hashing
         producers[server].send_json(data)
         time.sleep(1)
     print("\nDone\n")
@@ -77,5 +75,7 @@ if __name__ == "__main__":
 
     print("Servers:", servers)
     generate_data_round_robin(servers)
+    ch = ConsistentHashing()
     generate_data_consistent_hashing(servers)
+    hrw = HrwHashing()
     generate_data_hrw_hashing(servers)

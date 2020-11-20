@@ -22,7 +22,7 @@ class ConsistentHashing:
     def add_servers(self, servers):
         if len(self._keys) == self.num_slots:
             raise Exception("Hash ring is full")
-
+        # Adding all servers into hashing ring, this method can also be used to add new servers
         for server in servers:
             key = hash_func(server, self.num_slots)
             index = bisect(self._keys, key)
@@ -32,12 +32,13 @@ class ConsistentHashing:
 
     def get_server(self, item: str) -> str:
         key = hash_func(item, self.num_slots)
+        # Getting the server to the right of they key (Clockwise)
         index = bisect_right(self._keys, key) % len(self._keys)
         print(
             "Hashed Key of item = "
             + str(key)
             + ", So server "
             + self._servers[index]
-            + " will process this key"
+            + " will store this key"
         )
         return self._servers[index]
