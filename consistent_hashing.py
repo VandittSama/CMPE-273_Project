@@ -35,10 +35,13 @@ class ConsistentHashing:
         # Getting the server to the right of they key (Clockwise)
         index = bisect_right(self._keys, key) % len(self._keys)
         print(
-            "Hashed Key of item = "
+            "Hashed index of item is "
             + str(key)
-            + ", So server "
-            + self._servers[index]
-            + " will store this key"
+            + " out of "
+            + str(self.num_slots)
+            + " total slots"
         )
         return self._servers[index]
+
+    def get_server_list(self):
+        return self._servers

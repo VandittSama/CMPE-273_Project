@@ -38,5 +38,7 @@ class HrwHashing:
             weights.append((weight, server))
 
         _, server = max(weights)
-        print("This key will be stored by server " + server + " based on HRW hashing")
         return server
+
+    def get_server_list(self):
+        return self._servers

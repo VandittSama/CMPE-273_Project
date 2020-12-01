@@ -1,23 +1,47 @@
 import zmq
 import sys
 from multiprocessing import Process
+import json
 
 # import time
-# import json
 
 
 def server(port):
     context = zmq.Context()
-    consumer = context.socket(zmq.PULL)
+    consumer = context.socket(zmq.REP)
     consumer.connect(f"tcp://127.0.0.1:{port}")
     dataStore = {}
 
     while True:
-        raw = consumer.recv_json()
-        key, value = raw["key"], raw["value"]
-        print(f"Server_port={port}:key={key},value={value}")
+        msg = consumer.recv()
+        raw = json.loads(msg.decode("utf-8"))
+        op = raw["op"]
+        print(f"Server_port={port}: operation={op}")
         # FIXME: Implement to store the key-value data.
-        dataStore[key] = value
+        if op == "PUT":
+            key, value = raw["key"], raw["value"]
+            print(f"key={key}, value={value}")
+            dataStore[key] = value
+            consumer.send(b"OK")
+        elif op == "GET_ONE":
+            key = raw["key"]
+            print(f"key={key}")
+            data = {key: dataStore[key]}
+            consumer.send(json.dumps(data).encode("utf-8"))
+        elif op == "GET_ALL":
+            allDataDict = {}
+            allDataList = []
+            for item in dataStore:
+                data = {item: dataStore[item]}
+                allDataList.append(data)
+            allDataDict["collection"] = allDataList
+            consumer.send(json.dumps(allDataDict).encode("utf-8"))
+        elif op == "RESET":
+            dataStore.clear()
+            consumer.send(b"OK")
+        else:
+            print("Invalid operation")
+            consumer.send(b"Error")
 
 
 ### Testing code for large amounts of data

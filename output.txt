@@ -1,3 +1,6 @@
+num_server=4
+Servers: ['tcp://127.0.0.1:2000', 'tcp://127.0.0.1:2001', 'tcp://127.0.0.1:2002', 'tcp://127.0.0.1:2003']
+
 ***Starting...Round Robin***
 
 Creating a server connection to tcp://127.0.0.1:2000...
@@ -6,16 +9,16 @@ Creating a server connection to tcp://127.0.0.1:2002...
 Creating a server connection to tcp://127.0.0.1:2003...
 
 
-Sending data:{'key': 'key-0', 'value': 'value-0'}
-Sending data:{'key': 'key-1', 'value': 'value-1'}
-Sending data:{'key': 'key-2', 'value': 'value-2'}
-Sending data:{'key': 'key-3', 'value': 'value-3'}
-Sending data:{'key': 'key-4', 'value': 'value-4'}
-Sending data:{'key': 'key-5', 'value': 'value-5'}
-Sending data:{'key': 'key-6', 'value': 'value-6'}
-Sending data:{'key': 'key-7', 'value': 'value-7'}
-Sending data:{'key': 'key-8', 'value': 'value-8'}
-Sending data:{'key': 'key-9', 'value': 'value-9'}
+Sending data:{'op': 'PUT', 'key': 'key-0', 'value': 'value-0'}
+Sending data:{'op': 'PUT', 'key': 'key-1', 'value': 'value-1'}
+Sending data:{'op': 'PUT', 'key': 'key-2', 'value': 'value-2'}
+Sending data:{'op': 'PUT', 'key': 'key-3', 'value': 'value-3'}
+Sending data:{'op': 'PUT', 'key': 'key-4', 'value': 'value-4'}
+Sending data:{'op': 'PUT', 'key': 'key-5', 'value': 'value-5'}
+Sending data:{'op': 'PUT', 'key': 'key-6', 'value': 'value-6'}
+Sending data:{'op': 'PUT', 'key': 'key-7', 'value': 'value-7'}
+Sending data:{'op': 'PUT', 'key': 'key-8', 'value': 'value-8'}
+Sending data:{'op': 'PUT', 'key': 'key-9', 'value': 'value-9'}
 
 Done
 
@@ -34,26 +37,108 @@ Server = tcp://127.0.0.1:2002 at key =2
 Server = tcp://127.0.0.1:2003 at key =5
 
 
-Sending data:{'key': 'key-0', 'value': 'value-0'}
-Hashed Key of item = 5, So server tcp://127.0.0.1:2001 will store this key
-Sending data:{'key': 'key-1', 'value': 'value-1'}
-Hashed Key of item = 15, So server tcp://127.0.0.1:2002 will store this key
-Sending data:{'key': 'key-2', 'value': 'value-2'}
-Hashed Key of item = 1, So server tcp://127.0.0.1:2002 will store this key
-Sending data:{'key': 'key-3', 'value': 'value-3'}
-Hashed Key of item = 18, So server tcp://127.0.0.1:2002 will store this key
-Sending data:{'key': 'key-4', 'value': 'value-4'}
-Hashed Key of item = 2, So server tcp://127.0.0.1:2003 will store this key
-Sending data:{'key': 'key-5', 'value': 'value-5'}
-Hashed Key of item = 13, So server tcp://127.0.0.1:2002 will store this key
-Sending data:{'key': 'key-6', 'value': 'value-6'}
-Hashed Key of item = 3, So server tcp://127.0.0.1:2003 will store this key
-Sending data:{'key': 'key-7', 'value': 'value-7'}
-Hashed Key of item = 9, So server tcp://127.0.0.1:2000 will store this key
-Sending data:{'key': 'key-8', 'value': 'value-8'}
-Hashed Key of item = 19, So server tcp://127.0.0.1:2002 will store this key
-Sending data:{'key': 'key-9', 'value': 'value-9'}
-Hashed Key of item = 7, So server tcp://127.0.0.1:2001 will store this key
+Sending data:{'op': 'PUT', 'key': 'key-0', 'value': 'value-0'}
+Hashed index of item is 5 out of 20 total slots
+This key will be stored by server  tcp://127.0.0.1:2001  based on consistent hashing
+Sending data:{'op': 'PUT', 'key': 'key-1', 'value': 'value-1'}
+Hashed index of item is 15 out of 20 total slots
+This key will be stored by server  tcp://127.0.0.1:2002  based on consistent hashing
+Sending data:{'op': 'PUT', 'key': 'key-2', 'value': 'value-2'}
+Hashed index of item is 1 out of 20 total slots
+This key will be stored by server  tcp://127.0.0.1:2002  based on consistent hashing
+Sending data:{'op': 'PUT', 'key': 'key-3', 'value': 'value-3'}
+Hashed index of item is 18 out of 20 total slots
+This key will be stored by server  tcp://127.0.0.1:2002  based on consistent hashing
+Sending data:{'op': 'PUT', 'key': 'key-4', 'value': 'value-4'}
+Hashed index of item is 2 out of 20 total slots
+This key will be stored by server  tcp://127.0.0.1:2003  based on consistent hashing
+Sending data:{'op': 'PUT', 'key': 'key-5', 'value': 'value-5'}
+Hashed index of item is 13 out of 20 total slots
+This key will be stored by server  tcp://127.0.0.1:2002  based on consistent hashing
+Sending data:{'op': 'PUT', 'key': 'key-6', 'value': 'value-6'}
+Hashed index of item is 3 out of 20 total slots
+This key will be stored by server  tcp://127.0.0.1:2003  based on consistent hashing
+Sending data:{'op': 'PUT', 'key': 'key-7', 'value': 'value-7'}
+Hashed index of item is 9 out of 20 total slots
+This key will be stored by server  tcp://127.0.0.1:2000  based on consistent hashing
+Sending data:{'op': 'PUT', 'key': 'key-8', 'value': 'value-8'}
+Hashed index of item is 19 out of 20 total slots
+This key will be stored by server  tcp://127.0.0.1:2002  based on consistent hashing
+Sending data:{'op': 'PUT', 'key': 'key-9', 'value': 'value-9'}
+Hashed index of item is 7 out of 20 total slots
+This key will be stored by server  tcp://127.0.0.1:2001  based on consistent hashing
+
+Getting data by key
+Get by key  3
+Hashed index of item is 18 out of 20 total slots
+This key will be retreived by server  tcp://127.0.0.1:2002  based on consistent hashing
+{
+  "key-3": "value-3"
+}
+Get by key  6
+Hashed index of item is 3 out of 20 total slots
+This key will be retreived by server  tcp://127.0.0.1:2003  based on consistent hashing
+{
+  "key-6": "value-6"
+}
+Get by key  8
+Hashed index of item is 19 out of 20 total slots
+This key will be retreived by server  tcp://127.0.0.1:2002  based on consistent hashing
+{
+  "key-8": "value-8"
+}
+
+Getting All keys
+Getting all from server tcp://127.0.0.1:2002
+{
+  "collection": [
+    {
+      "key-1": "value-1"
+    },
+    {
+      "key-2": "value-2"
+    },
+    {
+      "key-3": "value-3"
+    },
+    {
+      "key-5": "value-5"
+    },
+    {
+      "key-8": "value-8"
+    }
+  ]
+}
+Getting all from server tcp://127.0.0.1:2003
+{
+  "collection": [
+    {
+      "key-4": "value-4"
+    },
+    {
+      "key-6": "value-6"
+    }
+  ]
+}
+Getting all from server tcp://127.0.0.1:2001
+{
+  "collection": [
+    {
+      "key-0": "value-0"
+    },
+    {
+      "key-9": "value-9"
+    }
+  ]
+}
+Getting all from server tcp://127.0.0.1:2000
+{
+  "collection": [
+    {
+      "key-7": "value-7"
+    }
+  ]
+}
 
 Done
 
@@ -72,25 +157,94 @@ Server tcp://127.0.0.1:2002 added to HRW pool
 Server tcp://127.0.0.1:2003 added to HRW pool
 
 
-Sending data:{'key': 'key-0', 'value': 'value-0'}
+Sending data:{'op': 'PUT', 'key': 'key-0', 'value': 'value-0'}
 This key will be stored by server tcp://127.0.0.1:2002 based on HRW hashing
-Sending data:{'key': 'key-1', 'value': 'value-1'}
+Sending data:{'op': 'PUT', 'key': 'key-1', 'value': 'value-1'}
 This key will be stored by server tcp://127.0.0.1:2001 based on HRW hashing
-Sending data:{'key': 'key-2', 'value': 'value-2'}
+Sending data:{'op': 'PUT', 'key': 'key-2', 'value': 'value-2'}
 This key will be stored by server tcp://127.0.0.1:2002 based on HRW hashing
-Sending data:{'key': 'key-3', 'value': 'value-3'}
+Sending data:{'op': 'PUT', 'key': 'key-3', 'value': 'value-3'}
 This key will be stored by server tcp://127.0.0.1:2001 based on HRW hashing
-Sending data:{'key': 'key-4', 'value': 'value-4'}
+Sending data:{'op': 'PUT', 'key': 'key-4', 'value': 'value-4'}
 This key will be stored by server tcp://127.0.0.1:2000 based on HRW hashing
-Sending data:{'key': 'key-5', 'value': 'value-5'}
+Sending data:{'op': 'PUT', 'key': 'key-5', 'value': 'value-5'}
 This key will be stored by server tcp://127.0.0.1:2003 based on HRW hashing
-Sending data:{'key': 'key-6', 'value': 'value-6'}
+Sending data:{'op': 'PUT', 'key': 'key-6', 'value': 'value-6'}
 This key will be stored by server tcp://127.0.0.1:2000 based on HRW hashing
-Sending data:{'key': 'key-7', 'value': 'value-7'}
+Sending data:{'op': 'PUT', 'key': 'key-7', 'value': 'value-7'}
 This key will be stored by server tcp://127.0.0.1:2000 based on HRW hashing
-Sending data:{'key': 'key-8', 'value': 'value-8'}
+Sending data:{'op': 'PUT', 'key': 'key-8', 'value': 'value-8'}
 This key will be stored by server tcp://127.0.0.1:2000 based on HRW hashing
-Sending data:{'key': 'key-9', 'value': 'value-9'}
+Sending data:{'op': 'PUT', 'key': 'key-9', 'value': 'value-9'}
 This key will be stored by server tcp://127.0.0.1:2000 based on HRW hashing
+
+Getting data by key
+Get by key  2
+This key will be retreived by server tcp://127.0.0.1:2002 based on HRW hashing
+{
+  "key-2": "value-2"
+}
+Get by key  5
+This key will be retreived by server tcp://127.0.0.1:2003 based on HRW hashing
+{
+  "key-5": "value-5"
+}
+Get by key  9
+This key will be retreived by server tcp://127.0.0.1:2000 based on HRW hashing
+{
+  "key-9": "value-9"
+}
+
+Getting All keys
+Getting all from server tcp://127.0.0.1:2003
+{
+  "collection": [
+    {
+      "key-5": "value-5"
+    }
+  ]
+}
+Getting all from server tcp://127.0.0.1:2000
+{
+  "collection": [
+    {
+      "key-4": "value-4"
+    },
+    {
+      "key-6": "value-6"
+    },
+    {
+      "key-7": "value-7"
+    },
+    {
+      "key-8": "value-8"
+    },
+    {
+      "key-9": "value-9"
+    }
+  ]
+}
+Getting all from server tcp://127.0.0.1:2002
+{
+  "collection": [
+    {
+      "key-0": "value-0"
+    },
+    {
+      "key-2": "value-2"
+    }
+  ]
+}
+Getting all from server tcp://127.0.0.1:2001
+{
+  "collection": [
+    {
+      "key-1": "value-1"
+    },
+    {
+      "key-3": "value-3"
+    }
+  ]
+}
 
 Done
