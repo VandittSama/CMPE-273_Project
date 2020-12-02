@@ -4,22 +4,6 @@ import json
 import ast
 
 
-# def get_consumers():
-#     resp = requests.get("http://127.0.0.1:8500/v1/kv/?keys")
-#     keys = resp.json()
-#     return keys
-
-
-# def add_consumer(addr):
-#     query = "http://127.0.0.1:8500/v1/kv/" + addr
-#     return requests.put(query)
-
-
-# def rem_consumer(addr):
-#     query = "http://127.0.0.1:8500/v1/kv/" + addr
-#     return requests.delete(query)
-
-
 def get_cluster_size():
     raw = requests.get("http://127.0.0.1:8500/v1/kv/cluster_size")
     resp = raw.json()[0]

@@ -15,7 +15,7 @@ class ConsistentHashing:
     def __init__(self):
         self._keys = []
         self._servers = []
-        self.num_slots = 50
+        self.num_slots = 30
 
     def add_servers(self, servers):
         if len(self._keys) == self.num_slots:
@@ -57,6 +57,11 @@ class ConsistentHashing:
 
         self._keys.pop(index)
         self._servers.pop(index)
+
+    def get_next_server(self, server):
+        key = hash_func(server, self.num_slots)
+        index = bisect_right(self._keys, key) % len(self._keys)
+        return self._servers[index]
 
     def get_server_list(self):
         return self._servers

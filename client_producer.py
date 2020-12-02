@@ -7,6 +7,7 @@ from hrw import HrwHashing
 import json
 import consul
 import requests
+import subprocess
 
 
 def create_clients(servers):
@@ -38,6 +39,7 @@ def generate_data_round_robin(servers):
 
 def generate_data_consistent_hashing(servers):
     ## TODO
+    input("\nNext Step: CONSISTENT HASHING...Press Enter to Begin...")
     print("\nSetting up the HashRing...")
     ch.add_servers(servers)
     print("\n")
@@ -48,7 +50,7 @@ def generate_data_consistent_hashing(servers):
 
     time.sleep(1)
 
-    consistent_hashing_tests()  # Tests GET_ONE, GET_ALL for consistent hashing
+    consistent_hashing_tests()  # Tests GET_ONE, GET_ALL, Remove and Add node
     clear_data()  # Clears data on the server for future tests
 
     print("\nDone\n")
@@ -101,33 +103,93 @@ def reBalance(copyOfData):
         assign_data_consistent_hashing(data, num)
 
 
-def consistent_hashing_tests():
+def delServer(server):
+    copyOfData = copy_data(server)
 
+    data = {"op": "RESET"}
+    producers[server].send_multipart(
+        [b"", json.dumps(data).encode("utf-8")]
+    )  # Deleting data on the Server
+    producers[server].recv_multipart()
+
+    ch.delete_server(server)
+
+    producers.pop(server, None)
+    servers.remove(server)
+
+    return copyOfData
+
+
+def consistent_hashing_tests():  # Includes all test cases for consistent hashing
+
+    input("\nNext Step: GET_ONE using key...Press Enter to continue...")
     # Testing GET_ONE
     print("\n***GETTING DATA BY KEY***")
     get_by_key_consistent_hashing(3)
     get_by_key_consistent_hashing(6)
     get_by_key_consistent_hashing(8)
 
+    input("\nNext Step: GET ALL...Press Enter to continue...")
+
     # Testing GET_ALL
     print("\n***GETTING ALL KEYS***")
     get_all_consistent_hashing()
 
+    input("\nNext Step: DELETING A SERVER...Press Enter to continue...")
+
     # TESTING SERVER REMOVAL
     print("\n***REMOVING SERVER tcp://127.0.0.1:2001 AND SENDING SIGNAL TO COSUL***")
 
-    copyOfData = copy_data("tcp://127.0.0.1:2001")
+    toBeDeleted = "tcp://127.0.0.1:2001"
 
-    ch.delete_server("tcp://127.0.0.1:2001")
-    requests.put("http://127.0.0.1:2101/v1/agent/leave")  # SENDING SIGNAL TO CONSUL
+    serverData = delServer(toBeDeleted)  # Deleting from Hash Ring
+    try:
+        requests.put("http://127.0.0.1:2101/v1/agent/leave")  # SENDING SIGNAL TO CONSUL
+    except requests.exceptions.RequestException as e:
+        print(e)
 
     print("\n***REBALANCING AFTER SERVER DELETION***")
 
-    reBalance(copyOfData)
+    reBalance(serverData)
 
     print("\n***GETTING ALL KEYS AFTER SERVER DELETION***")
 
     get_all_consistent_hashing()
+
+    input("\nNext Step: ADDING NEW SERVER...Press Enter to continue...")
+
+    # TESTING SERVER ADDITION
+    print("\n***ADDING SERVER tcp://127.0.0.1:2005 AND SENDING SIGNAL TO COSUL***")
+
+    # SEND ADD SIGNAL TO CONSUL
+    address = "127.0.5.1"
+    port = "2105"
+    dns_port = int(port) + 100
+    data_dir = "consul5"
+    cmd = 'consul agent -node=agent-{} -data-dir=/tmp/{} -bind={} -dns-port={} -http-port={} -retry-join "192.168.1.66" -disable-host-node-id'.format(
+        port, data_dir, address, dns_port, port
+    )
+    ls_output = subprocess.Popen(
+        cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
+
+    newServer = "tcp://127.0.0.1:2005"
+    serverToRight = ch.get_next_server(newServer)  # Getting server to rebalnce data
+
+    serverData = delServer(serverToRight)
+
+    newServers = []
+    newServers.append(newServer)  # Adding new server to the server list
+    newServers.append(serverToRight)
+    create_clients(newServers)  # Generating new socket for the new server
+    ch.add_servers(newServers)
+    reBalance(serverData)  # Rebalancing after Addition
+
+    print("\n***GETTING ALL KEYS AFTER SERVER ADDITION***")
+
+    get_all_consistent_hashing()
+
+    input("\nPress Enter to exit...")
 
 
 ### End of Consistent hashing Implementation
@@ -138,6 +200,7 @@ def consistent_hashing_tests():
 
 def generate_data_hrw_hashing(servers):
     ## TODO
+    input("\nNext Step: HRW HASHING...Press Enter to Begin...")
     print("\nSetting up server pool...")
     hrw.add_servers(servers)
     print("\n")
@@ -177,13 +240,14 @@ def get_all_hrw_hashing():
 
 def hrw_hashing_tests():
 
-    time.sleep(1)
+    input("\nNext Step: GET_ONE by key...Press Enter to continue...")
     # Testing GET_ONE
     print("\n***GETTING DATA BY KEY***")
     get_by_key_hrw_hashing(2)
     get_by_key_hrw_hashing(5)
     get_by_key_hrw_hashing(9)
 
+    input("\nNext Step: GET ALL...Press Enter to continue...")
     # Testing GET_ALL
     print("\n***GETTING ALL KEYS***")
     get_all_hrw_hashing()
@@ -216,19 +280,20 @@ if __name__ == "__main__":
     print("Servers:", servers)
     producers = {}
 
-    # print("\n*******STARTING...ROUND ROBIN*******\n")
-    # producers = create_clients(servers)
-    # generate_data_round_robin(servers)
-    # producers.clear()
-
-    print("\n*******STARTING...CONSISTENT HASHING*******\n")
-    producers = create_clients(servers)
     ch = consistent_hashing.ConsistentHashing()
-    generate_data_consistent_hashing(servers)
+    hrw = HrwHashing()
+
+    print("\n*******STARTING...ROUND ROBIN*******\n")
+    producers = create_clients(servers)
+    generate_data_round_robin(servers)
     producers.clear()
 
     print("\n*******STARTING...HRW HASHING*******\n")
     producers = create_clients(servers)
-    hrw = HrwHashing()
     generate_data_hrw_hashing(servers)
+    producers.clear()
+
+    print("\n*******STARTING...CONSISTENT HASHING*******\n")
+    producers = create_clients(servers)
+    generate_data_consistent_hashing(servers)
     producers.clear()
