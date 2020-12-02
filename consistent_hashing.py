@@ -1,10 +1,8 @@
 import hashlib
 from bisect import bisect, bisect_left, bisect_right
+import client_producer
 
-
-# def add_replica(): + virtual nodes
-
-# def remove_server(): + reshuffle
+# Used https://levelup.gitconnected.com/consistent-hashing-27636286a8a9 for reference
 
 
 def hash_func(key: str, num_slots: int) -> int:
@@ -17,7 +15,7 @@ class ConsistentHashing:
     def __init__(self):
         self._keys = []
         self._servers = []
-        self.num_slots = 20
+        self.num_slots = 50
 
     def add_servers(self, servers):
         if len(self._keys) == self.num_slots:
@@ -27,6 +25,10 @@ class ConsistentHashing:
             key = hash_func(server, self.num_slots)
             index = bisect(self._keys, key)
             print("Server = " + str(server) + " at key =" + str(key))
+            if index > 0 and self._keys[index - 1] == key:
+                raise Exception(
+                    "Collision occured, a server already exists at this key"
+                )
             self._servers.insert(index, server)
             self._keys.insert(index, key)
 
@@ -42,6 +44,19 @@ class ConsistentHashing:
             + " total slots"
         )
         return self._servers[index]
+
+    def delete_server(self, server):
+        if len(self._keys) == 0:
+            raise Exception("Hash ring is empty")
+
+        key = hash_func(server, self.num_slots)
+        index = bisect_left(self._keys, key)
+
+        if index >= len(self._keys) or self._keys[index] != key:
+            raise Exception("Server does not exist")
+
+        self._keys.pop(index)
+        self._servers.pop(index)
 
     def get_server_list(self):
         return self._servers

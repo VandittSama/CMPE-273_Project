@@ -2,15 +2,30 @@ import zmq
 import sys
 from multiprocessing import Process
 import json
+import consul
+import subprocess
 
 # import time
 
 
-def server(port):
+def server(port, each_server):
     context = zmq.Context()
     consumer = context.socket(zmq.REP)
+    # consumer.connect(f"tcp://{address}:{port}")
     consumer.connect(f"tcp://127.0.0.1:{port}")
     dataStore = {}
+
+    # Starting consul members
+    address = "127.0.{}.1".format(each_server + 1)
+    port = int(port) + 100
+    dns_port = int(port) + 100
+    data_dir = "consul" + str(each_server + 1)
+    cmd = 'consul agent -node=agent-{} -data-dir=/tmp/{} -bind={} -dns-port={} -http-port={} -retry-join "192.168.1.66" -disable-host-node-id'.format(
+        port, data_dir, address, dns_port, port
+    )
+    ls_output = subprocess.Popen(
+        cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
 
     while True:
         msg = consumer.recv()
@@ -44,25 +59,12 @@ def server(port):
             consumer.send(b"Error")
 
 
-### Testing code for large amounts of data
-# t_end = time.time() + 10
-# while time.time() < t_end:
-#     raw = consumer.recv_json()
-#     key, value = raw["key"], raw["value"]
-#     print(f"Server_port={port}:key={key},value={value}")
-#     # FIXME: Implement to store the key-value data.
-#     dataStore[key] = value
-
-# print("\n" + port + "\n" + json.dumps(dataStore))
-
-
 if __name__ == "__main__":
     num_server = 1
-    if len(sys.argv) > 1:
-        num_server = int(sys.argv[1])
-        print(f"num_server={num_server}")
+    num_server = consul.get_cluster_size()
+    print(f"num_server={num_server}")
 
     for each_server in range(num_server):
-        server_port = "200{}".format(each_server)
+        server_port = "200{}".format(each_server + 1)
         print(f"Starting a server at:{server_port}...")
-        Process(target=server, args=(server_port,)).start()
+        Process(target=server, args=(server_port, each_server)).start()
